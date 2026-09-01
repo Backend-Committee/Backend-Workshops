@@ -2,7 +2,7 @@
 
 ## Session Resources
 
-**Presentation:** [Git & GitHub - Presentation](https://www.canva.com/design/DAHTH4ar9J8/GmBACbXZmTjZ4pyV_xT5zQ/edit)
+**Presentation:** [Git & GitHub - Presentation](https://canva.link/mvxqu0jjmqsdzn2)
 
 **Session Recording:** [Session 7 Recording](SESSION_LINK_HERE)
 
