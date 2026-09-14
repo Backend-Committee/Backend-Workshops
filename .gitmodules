@@ -1,0 +1,6 @@
+[submodule "book_store"]
+	path = book_store
+	url = https://github.com/OmarAwadSaber/book_store.git
+[submodule "DjangoTemplatesAndFormsImplementation_BookStoreProject"]
+	path = DjangoTemplatesAndFormsImplementation_BookStoreProject
+	url = https://github.com/OmarAwadSaber/book_store.git
