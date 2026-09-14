@@ -1,0 +1,20 @@
+[project]
+name = "authentication-session"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "OmarAwadSaber", email = "01004005001a@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1.1",
+    "djangorestframework>=3.18.1",
+]
+
+[project.scripts]
+authentication-session = "authentication_session:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
