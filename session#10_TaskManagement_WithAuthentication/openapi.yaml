@@ -1,0 +1,366 @@
+openapi: 3.0.3
+info:
+  title: Task Management API
+  version: 1.0.0
+  description: Authentication and task management API.
+servers:
+  - url: /api
+tags:
+  - name: Authentication
+    description: User registration and JWT authentication.
+  - name: Tasks
+    description: Task management operations.
+paths:
+  /users/:
+    post:
+      tags:
+        - Authentication
+      operationId: createUser
+      summary: Register a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid user data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /token/:
+    post:
+      tags:
+        - Authentication
+      operationId: obtainToken
+      summary: Obtain JWT access and refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainRequest'
+      responses:
+        '200':
+          description: Tokens returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid username or password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+
+  /token/refresh/:
+    post:
+      tags:
+        - Authentication
+      operationId: refreshToken
+      summary: Refresh an access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+      responses:
+        '200':
+          description: Access token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+        '401':
+          description: Invalid or expired refresh token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+
+  /tasks/:
+    get:
+      tags:
+        - Tasks
+      operationId: listTasks
+      summary: List tasks
+      responses:
+        '200':
+          description: A list of tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      tags:
+        - Tasks
+      operationId: createTask
+      summary: Create a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid task data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /tasks/{id}/:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+    get:
+      tags:
+        - Tasks
+      operationId: retrieveTask
+      summary: Retrieve a task
+      responses:
+        '200':
+          description: The requested task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Tasks
+      operationId: replaceTask
+      summary: Replace a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task replaced successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid task data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Tasks
+      operationId: updateTask
+      summary: Update part of a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid task data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Tasks
+      operationId: deleteTask
+      summary: Delete a task
+      responses:
+        '204':
+          description: Task deleted successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    TaskId:
+      name: id
+      in: path
+      required: true
+      description: Numeric task identifier.
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+  responses:
+    NotFound:
+      description: The requested task was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+  schemas:
+    UserCreate:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+    User:
+      type: object
+      required:
+        - username
+        - role
+      properties:
+        username:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          readOnly: true
+    TokenObtainRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    TokenRefreshRequest:
+      type: object
+      required:
+        - refresh
+      properties:
+        refresh:
+          type: string
+    TokenPair:
+      type: object
+      required:
+        - access
+        - refresh
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+    TokenRefreshResponse:
+      type: object
+      required:
+        - access
+      properties:
+        access:
+          type: string
+    TaskCreate:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        completed:
+          type: boolean
+          default: false
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        completed:
+          type: boolean
+    Task:
+      allOf:
+        - $ref: '#/components/schemas/TaskCreate'
+        - type: object
+          required:
+            - id
+            - created_at
+            - updated_at
+          properties:
+            id:
+              type: integer
+              format: int64
+              readOnly: true
+            created_at:
+              type: string
+              format: date-time
+              readOnly: true
+            updated_at:
+              type: string
+              format: date-time
+              readOnly: true
+    ValidationError:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+    AuthenticationError:
+      type: object
+      properties:
+        detail:
+          type: string
+    NotFoundError:
+      type: object
+      properties:
+        detail:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
